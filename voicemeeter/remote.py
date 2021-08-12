@@ -5,12 +5,16 @@ import abc
 from .driver import dll
 from .errors import VMRError, VMRDriverError
 from .input import InputStrip
+from .strip import LevelType
 from .output import OutputBus
 from . import kinds
 from . import profiles
 from .util import merge_dicts
+import pprint
+
 
 loggedIn = False
+
 
 
 class VMRemote(abc.ABC):
@@ -86,6 +90,15 @@ class VMRemote(abc.ABC):
         """ True iff UI parameters have been updated. """
         val = self._call('IsParametersDirty', expected=(0, 1))
         return (val == 1)
+        
+       
+    def get_level(self, leveltype=LevelType.OUTPUT,channel:float = 0):
+        """ Retrieves The Level of a channel. """
+        buf = ct.c_float()
+        pp = pprint.PrettyPrinter(indent=4)
+        
+        self._call('GetLevel', leveltype.value,channel, ct.byref(buf))
+        return buf.value
 
     def get(self, param, string=False):
         """ Retrieves a parameter. """

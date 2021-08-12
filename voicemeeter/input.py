@@ -1,5 +1,5 @@
 from .errors import VMRError
-from .strip import VMElement, bool_prop, str_prop, float_prop
+from .strip import VMElement, bool_prop, str_prop, float_prop, LevelType
 from . import kinds
 
 class InputStrip(VMElement):
@@ -18,7 +18,14 @@ class InputStrip(VMElement):
   @property
   def identifier(self):
     return f'Strip[{self.index}]'
-  
+    
+  @property
+  def channel_level_type(self):
+    # Hardcoded for testing - needs to know what number strip it is, calculate the offset based on channel counts
+    # This is A2
+    return LevelType.POST_FADER
+    
+
   solo = bool_prop('Solo')
   mute = bool_prop('Mute')
   
@@ -31,11 +38,19 @@ class InputStrip(VMElement):
   device = str_prop('device.name')
   sr = str_prop('device.sr')
   
+  
 class PhysicalInputStrip(InputStrip):
   mono = bool_prop('Mono')
+  channel_count = 2
+  _channel_offset = 0
 
 class VirtualInputStrip(InputStrip):
   mono = bool_prop('MC')
+  _channel_offset = 10
+  channel_count = 8
+  @property
+  def channel_level_start(self):
+    return self._channel_offset+((self.index-5)*self.channel_count)
 
 
 def _make_strip_mixin(kind):

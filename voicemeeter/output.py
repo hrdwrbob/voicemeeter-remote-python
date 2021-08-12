@@ -1,6 +1,6 @@
 # param_name => is_numeric
 from .errors import VMRError
-from .strip import VMElement, bool_prop, str_prop, float_prop
+from .strip import VMElement, bool_prop, str_prop, float_prop, LevelType
 
 class OutputBus(VMElement):
   """ Base class for output busses. """
@@ -18,11 +18,17 @@ class OutputBus(VMElement):
   def identifier(self):
     return f'Bus[{self.index}]'
   
+  @property
+  def channel_level_type(self):
+    return LevelType.OUTPUT
+
   mute = bool_prop('Mute')
   gain = float_prop('Gain', range=(-60,12))
+  channel_count = 8
+  
   
 class PhysicalOutputBus(OutputBus):
-  pass
-
+  _channel_offset = 0
+  
 class VirtualOutputBus(OutputBus):
-  pass
+  _channel_offset = 8*5

@@ -1,5 +1,12 @@
 import abc
 from .errors import VMRError
+from enum import Enum
+
+class LevelType(Enum):
+    PRE_FADER = 0
+    POST_FADER = 1
+    POST_MUTE = 2
+    OUTPUT = 3
 
 class VMElement(abc.ABC):
   """ Base class for InputStrip and OutputBus. """
@@ -10,6 +17,19 @@ class VMElement(abc.ABC):
   def get(self, param, **kwargs):
     """ Returns the param value of the current strip. """
     return self._remote.get(f'{self.identifier}.{param}', **kwargs)
+    
+  def get_level(self, **kwargs):
+    """ Returns the maximum level of all channels of the current strip. """
+    level = 0
+    for channel in range(self.channel_level_start,self.channel_level_start+self.channel_count):
+      level = max(level,self._remote.get_level(self.channel_level_type,channel, **kwargs))
+    #print("type:" + str(self.channel_level_type.value) + " start:" + 
+    return level
+  
+  @property
+  def channel_level_start(self):
+    return self._channel_offset+(self.index*self.channel_count)
+  
   def set(self, param, val, **kwargs):
     """ Sets the param value of the current strip. """
     self._remote.set(f'{self.identifier}.{param}', val, **kwargs)

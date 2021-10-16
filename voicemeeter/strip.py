@@ -8,7 +8,11 @@ class LevelType(Enum):
     POST_MUTE = 2
     OUTPUT = 3
 
+
+
+
 class VMElement(abc.ABC):
+
   """ Base class for InputStrip and OutputBus. """
   def __init__(self, remote, index):
     self._remote = remote
